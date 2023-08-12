@@ -1,27 +1,29 @@
 NAME	=	philo
 
 CC		=	gcc
-SRC_DIR	=	src
-OBJ_DIR =	obj
-CFLAGS	=	-Wall -Wextra -Werror -g
-RM		=	rm -f
+CFLAGS	=	-Wall -Wextra -Werror -g #-fsanitize=thread
+RM		=	rm -rf
 
-SRCS	=	$(wildcard $(SRC_DIR)/*.c)
-
+SRC_DIR	=	src/
+OBJ_DIR =	obj/
 LIBFT_DIR = ./libft/
 
-OBJS	=	$(SRCS:%.c=%.o)
+SRCS	=	$(wildcard $(SRC_DIR)*.c)
+OBJS = $(patsubst $(SRC_DIR)%.c,$(OBJ_DIR)%.o,$(SRCS))
 
-all:		$(NAME)
+all:	$(NAME)
 
 $(NAME):	$(OBJS)
+			echo $(SRCS)
 			make -C $(LIBFT_DIR) all 
 			cc -o $(NAME) $(OBJS) -g $(CFLAGS) $(LIBS) -L$(LIBFT_DIR) -lft
-.c.o:
-			@$(CC) $(CFLAGS) -c $< -o $(<:.c=.o)
+
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-			@$(RM) $(OBJS)
+			@$(RM) $(OBJS) $(OBJ_DIR)
 			make -C $(LIBFT_DIR) clean
 			
 fclean:		clean

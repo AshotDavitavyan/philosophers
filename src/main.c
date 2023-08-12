@@ -6,103 +6,128 @@
 /*   By: adavitav <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/30 12:26:10 by adavitav          #+#    #+#             */
-/*   Updated: 2023/08/01 14:49:53 by adavitav         ###   ########.fr       */
+/*   Updated: 2023/08/11 19:10:19 by adavitav         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
-int	isnum(char *arg)
+void	take_forks(t_philo *philo, int which)
 {
-	if (*arg == '-')
+	if (which == 2)
 	{
-		ft_putstr_fd("Argument Should be Positive\n", 2);
-		return (0);
+		printf("%d has taken a fork\n", philo->index);
+		philo->f_next->taken = 1;
+		printf("%d has taken a fork\n", philo->index);
+		philo->f_prev->taken = 1;
 	}
-	if (*arg == '+')
+	else if (which == 1)
 	{
-		while(*arg == '+')
-		arg++;
+		printf("%d has taken a fork\n", philo->index);
+		philo->f_next->taken = 1;
 	}
-	while (*arg)
+	else if (which == -1)
 	{
-		if (*arg < '0' || *arg > '9')
-		{
-			ft_putstr_fd("Argument Should be Numeric\n", 2);
-			return (0);
-		}
-		arg++;
+		printf("%d has taken a fork\n", philo->index);
+		philo->f_prev->taken = 1;
 	}
-	return (1);
 }
 
-int	check_args(int number_arg, char **args, char *save)
+void	*routine(void *ptr)
 {
-	if (number_arg < 5 || number_arg > 6)
+	t_philo *philo;
+
+	philo = (t_philo *)ptr;
+	if (philo->info->even == 1)
 	{
-		ft_putstr_fd("Wrong Number of Arguments\n", 2);
-		return (0);
+		
 	}
-	args++;
-	while (*args != NULL)
-	{
-		if (isnum(*args) == 0)
-			return (0);
-		else if (ft_atoi(*args) == -1)
-		{
-			ft_putstr_fd("Argument is too Big\n", 2);
-			return (0);
-		}
-		else if (!(**args))
-		{
-			ft_putstr_fd("Argument Should not be Empty\n", 2);
-			return (0);
-		}
-		args++;
-	}
-	args = &save;
-	return (1);
+	return (NULL);
 }
 
-void	add_info(t_info *start_info, char **argv)
+long long get_time(void)
+{
+	struct timeval	tv;
+
+	if (gettimeofday(&tv, NULL) == -1)
+		write (2, "Error: GETTIMEOFDAY(2)\n", 28);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
+int	check_philos(t_philo *philos)
 {
 	int i;
 
-	i = 0;
-	argv++;
-	while (*argv && argv)
+	i = philos->info->number_of_phil;
+	while (i > 0)
 	{
-		if (i == 0)
-			start_info->number_of_phil = ft_atoi(*argv);
-		else if (i == 1)
-			start_info->time_to_die = ft_atoi(*argv);
-		else if (i == 2)
-			start_info->time_to_eat = ft_atoi(*argv);
-		else if (i == 3)
-			start_info->time_to_sleep = ft_atoi(*argv);
-		else if (i == 4)
-			start_info->num_to_eat = ft_atoi(*argv);
-		argv++;
-		i++;
+		if (get_time() - philos->last_time_ate >= philos->info->time_to_die)
+		{
+			printf("%ld %d has died\n", get_time(), philos->index);
+			return (-1);
+		}
+		i--;
+		philos = philos->next;
 	}
-	if (i == 4)
-		start_info->num_to_eat = -1;
-
-	printf("[%d]\n", start_info->number_of_phil);
-	printf("[%d]\n", start_info->time_to_die);
-	printf("[%d]\n", start_info->time_to_eat);
-	printf("[%d]\n", start_info->time_to_sleep);
-	printf("[%d]\n", start_info->num_to_eat);
-}
-
-int	main(int argc, char **argv)
-{
-	t_info	*start_info;
-
-	if (check_args(argc, argv, *argv) == 0)
-		return (1);
-	start_info = (t_info *)malloc(sizeof(t_info));
-	add_info(start_info, argv);
 	return (0);
 }
+
+int	init_threads(t_philo *philos)
+{
+	int i;
+
+	i = philos->info->number_of_phil;
+	while (i > 0)
+	{
+		pthread_create(&philos->th, NULL, routine, philos);
+		i--;
+		philos = philos->next;
+	}
+	while (1)
+	{
+		if (check_philos(philos) == -1)
+			return (-1);
+	}
+	while (i < philos->info->number_of_phil)
+	{
+		i++;
+		pthread_join(philos->th, NULL);
+		philos = philos->next;
+	}
+	return (0);
+}
+
+void	add_forks(t_philo *philos)
+{
+	t_fork	*fork;
+
+	while (philos->next->index > philos->index)
+	{
+		fork = (t_fork *)malloc(sizeof(t_fork));
+		fork->taken = 0;
+		philos->f_next = fork;
+		philos->next->f_prev = fork;
+		philos = philos->next;
+	}
+	fork = (t_fork *)malloc(sizeof(t_fork));
+	fork->taken = 0;
+	philos->f_next = fork;
+	philos->next->f_prev = fork;
+}
+
+ int	main(int argc, char **argv)
+ {
+ 	t_info	*start_info;
+ 	t_philo	*philos;
+
+ 	if (check_args(argc, argv, *argv) == 0)
+ 		return (1);
+ 	start_info = (t_info *)malloc(sizeof(t_info));
+ 	add_info(start_info, argv);
+ 	philos = create_philos(start_info);
+ 	add_forks(philos);
+	if(init_threads(philos) == -1)
+		return (1);
+	return (0);
+}	
 
