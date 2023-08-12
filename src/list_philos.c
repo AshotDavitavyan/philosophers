@@ -10,7 +10,10 @@ t_philo	*add_philo(int index, t_info *info)
 	philo->info = info;
 	philo->next = NULL;
 	philo->prev = NULL;
-	pthread_mutex_init(&philo->fork, 0);
+	philo->f_prev = NULL;
+	philo->f_next = NULL;
+	philo->lfork = 0;
+	philo->rfork = 0;
 	return (philo);
 }
 
@@ -54,4 +57,23 @@ t_philo	*create_philos(t_info *start_info)
 	if (i > 0)
 		circle_list(to_return);
 	return (to_return);
+}
+
+void	add_forks(t_philo *philos)
+{
+	t_fork	*fork;
+
+	while (philos->next->index > philos->index)
+	{
+		fork = (t_fork *)malloc(sizeof(t_fork));
+		fork->taken = 0;
+		pthread_mutex_init(&fork->mx, 0);
+		philos->f_next = fork;
+		philos->next->f_prev = fork;
+		philos = philos->next;
+	}
+	fork = (t_fork *)malloc(sizeof(t_fork));
+	fork->taken = 0;
+	philos->f_next = fork;
+	philos->next->f_prev = fork;
 }

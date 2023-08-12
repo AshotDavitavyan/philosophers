@@ -73,7 +73,6 @@ void	add_info(t_info *start_info, char **argv)
 		argv++;
 		i++;
 	}
-	start_info->even = 1 - ((start_info->number_of_phil) % 2);
 	if (i == 4)
 		start_info->num_to_eat = -1;
 }

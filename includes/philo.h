@@ -15,25 +15,26 @@ typedef struct s_info
 	int	time_to_eat;
 	int	time_to_sleep;
 	int	num_to_eat;
-	int	even;
-	int	even_fl;
 }		t_info;
+
+typedef pthread_mutex_t t_mutex;
 
 typedef	struct s_fork
 {
 	int 			taken;
+	t_mutex			mx;
 }			t_fork;
 
-typedef pthread_mutex_t t_mutex;
 
 typedef struct s_philo
 {
 	int				index;
 	long long		last_time_ate;
 	t_info			*info;
+	int				lfork;
+	int				rfork;
 	struct s_fork	*f_next;
 	struct s_fork	*f_prev;
-	t_mutex			fork;
 	struct s_philo	*next;
 	struct s_philo	*prev;
 	pthread_t		th;
@@ -44,6 +45,7 @@ int	check_args(int number_arg, char **args, char *save);
 
 void	add_info(t_info *start_info, char **argv);
 void	circle_list(t_philo *head);
+void	add_forks(t_philo *philos);
 
 t_philo	*create_philos(t_info *start_info);
 t_philo	*philoadd_back(t_philo *to_add, t_philo *philo);
