@@ -14,6 +14,7 @@ t_philo	*add_philo(int index, t_info *info)
 	philo->f_next = NULL;
 	philo->lfork = 0;
 	philo->rfork = 0;
+	pthread_mutex_init(&philo->mxate, 0);
 	return (philo);
 }
 
@@ -67,7 +68,7 @@ void	add_forks(t_philo *philos)
 	{
 		fork = (t_fork *)malloc(sizeof(t_fork));
 		fork->taken = 0;
-		pthread_mutex_init(&fork->mx, 0);
+		pthread_mutex_init(&fork->mxfork, 0);
 		philos->f_next = fork;
 		philos->next->f_prev = fork;
 		philos = philos->next;

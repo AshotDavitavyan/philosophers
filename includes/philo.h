@@ -8,28 +8,32 @@
 #include <pthread.h>
 #include "../libft/libft.h"
 
+typedef pthread_mutex_t t_mutex;
+
 typedef struct s_info
 {
-	int	number_of_phil;
-	int	time_to_die;
-	int	time_to_eat;
-	int	time_to_sleep;
-	int	num_to_eat;
-}		t_info;
-
-typedef pthread_mutex_t t_mutex;
+	int			number_of_phil;
+	int			time_to_die;
+	int			time_to_eat;
+	int			time_to_sleep;
+	int			num_to_eat;
+	int			die;
+	long long	start;
+	t_mutex		mxprint;
+}				t_info;
 
 typedef	struct s_fork
 {
 	int 			taken;
-	t_mutex			mx;
-}			t_fork;
+	t_mutex			mxfork;
+}					t_fork;
 
 
 typedef struct s_philo
 {
 	int				index;
 	long long		last_time_ate;
+	t_mutex			mxate;
 	t_info			*info;
 	int				lfork;
 	int				rfork;

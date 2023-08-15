@@ -14,6 +14,25 @@
 
 #include "../includes/philo.h"
 
+long long get_time(void)
+{
+	struct timeval	tv;
+	
+	if (gettimeofday(&tv, NULL) == -1)
+		write (2, "Error: GETTIMEOFDAY(2)\n", 28);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
+void	mx_printf(char *to_print, t_philo *philo)
+{
+	long long	time;
+
+	time = get_time() - philo->info->start;
+	pthread_mutex_lock(&philo->info->mxprint);
+	printf("%lld %d %s", time, philo->index, to_print);
+	pthread_mutex_unlock(&philo->info->mxprint);
+}
+
 void	ft_usleep(int ms)
 {
 	struct timeval start;
@@ -22,35 +41,26 @@ void	ft_usleep(int ms)
 	gettimeofday(&start, 0);
 	gettimeofday(&now, 0);
 	while ((now.tv_sec + now.tv_usec) - (start.tv_sec + start.tv_usec) < ms)
-		usleep(10);
-}
-
-long long get_time(void)
-{
-	struct timeval	tv;
-
-	if (gettimeofday(&tv, NULL) == -1)
-		write (2, "Error: GETTIMEOFDAY(2)\n", 28);
-	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+		usleep(ms / 10);
 }
 
 void	take_forks_util(t_philo *philo, int which)
 {
 	if (which == 1)
 	{
-		pthread_mutex_lock(&philo->f_next->mx);
-		printf("%d has taken a fork\n", philo->index);
+		pthread_mutex_lock(&philo->f_next->mxfork);
+		mx_printf("has taken a fork\n", philo);
 		philo->f_next->taken = 1;
 		philo->rfork = 1;
-		pthread_mutex_unlock(&philo->f_next->mx);
+		pthread_mutex_unlock(&philo->f_next->mxfork);
 	}
 	else if (which == (-1))
 	{
-		pthread_mutex_lock(&philo->f_prev->mx);
-		printf("%d has taken a fork\n", philo->index);
+		pthread_mutex_lock(&philo->f_prev->mxfork);
+		mx_printf("has taken a fork\n", philo);
 		philo->f_prev->taken = 1;
 		philo->lfork = 1;
-		pthread_mutex_unlock(&philo->f_prev->mx);
+		pthread_mutex_unlock(&philo->f_prev->mxfork);
 	}
 }
 
@@ -72,18 +82,21 @@ void	*routine(void *ptr)
 	t_philo *philo;
 
 	philo = (t_philo *)ptr;
+	philo->info->start = get_time();
 	philo->last_time_ate = get_time();
 	if (philo->index % 2 == 0)
-		usleep(2000);
-	while (1)
+		usleep(philo->info->time_to_die/10);
+	while (philo->info->die == 0)
 	{
 		take_forks(philo, 2);
 		if (philo->lfork == 1 && philo->rfork == 1)
 		{
+			pthread_mutex_lock(&philo->mxate);
 			philo->last_time_ate = get_time();
-			printf("%lld %d is eating\n", philo->last_time_ate, philo->index);
+			pthread_mutex_unlock(&philo->mxate);
+			mx_printf("is eating\n", philo);
 			ft_usleep(philo->info->time_to_eat);
-			printf("%lld %d is sleeping\n", get_time(), philo->index);
+			mx_printf("is sleeping\n", philo);
 			ft_usleep(philo->info->time_to_sleep);
 		}
 	}
@@ -98,9 +111,10 @@ int	check_philos(t_philo *philos)
 	i = philos->info->number_of_phil;
 	while (i > 0)
 	{
-		if (get_time() - philos->last_time_ate >= philos->info->time_to_die)
+		if ((get_time() - philos->last_time_ate) >= philos->info->time_to_die)
 		{
-			printf("%lld %d has died\n", get_time(), philos->index);
+			philos->info->die = 1;
+			mx_printf("has died\n", philos);
 			return (-1);
 		}
 		i--;
@@ -117,6 +131,7 @@ int	init_threads(t_philo *philos)
 	while (i > 0)
 	{
 		pthread_create(&philos->th, NULL, routine, philos);
+		printf("Here\n");
 		i--;
 		philos = philos->next;
 	}

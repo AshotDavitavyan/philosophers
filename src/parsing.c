@@ -73,6 +73,8 @@ void	add_info(t_info *start_info, char **argv)
 		argv++;
 		i++;
 	}
+	start_info->start = 0;
+	pthread_mutex_init(&start_info->mxprint, 0);
 	if (i == 4)
 		start_info->num_to_eat = -1;
 }
