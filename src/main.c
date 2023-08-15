@@ -10,7 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-//make printf_mut
+////////////////////////////////////////////DO GIT PUSH!!!!!!!!!!!!!!//////////////////////////////////////
+//mutex die
 
 #include "../includes/philo.h"
 
@@ -35,12 +36,10 @@ void	mx_printf(char *to_print, t_philo *philo)
 
 void	ft_usleep(int ms)
 {
-	struct timeval start;
-	struct timeval now;
-	
-	gettimeofday(&start, 0);
-	gettimeofday(&now, 0);
-	while ((now.tv_sec + now.tv_usec) - (start.tv_sec + start.tv_usec) < ms)
+	long long	start;
+
+	start = get_time();
+	while (get_time() - start < ms)
 		usleep(ms / 10);
 }
 
@@ -48,33 +47,22 @@ void	take_forks_util(t_philo *philo, int which)
 {
 	if (which == 1)
 	{
-		pthread_mutex_lock(&philo->f_next->mxfork);
+		pthread_mutex_lock(&(philo->f_next->mxfork));
 		mx_printf("has taken a fork\n", philo);
-		philo->f_next->taken = 1;
-		philo->rfork = 1;
-		pthread_mutex_unlock(&philo->f_next->mxfork);
 	}
 	else if (which == (-1))
 	{
-		pthread_mutex_lock(&philo->f_prev->mxfork);
+		pthread_mutex_lock(&(philo->f_prev->mxfork));
 		mx_printf("has taken a fork\n", philo);
-		philo->f_prev->taken = 1;
-		philo->lfork = 1;
-		pthread_mutex_unlock(&philo->f_prev->mxfork);
 	}
 }
 
-void	take_forks(t_philo *philo, int which)
+void	take_forks(t_philo *philo)
 {
-	if (which == 2)
-	{
-		take_forks_util(philo, 1);
-		take_forks_util(philo, (-1));
-	}
-	else if (which == 1)
-		take_forks_util(philo, 1);
-	else if (which == -1)
-		take_forks_util(philo, -1);
+	pthread_mutex_lock(&(philo->f_next->mxfork));
+	mx_printf("has taken a fork right\n", philo);
+	pthread_mutex_lock(&(philo->f_prev->mxfork));
+	mx_printf("has taken a fork left\n", philo);
 }
 
 void	*routine(void *ptr)
@@ -82,39 +70,62 @@ void	*routine(void *ptr)
 	t_philo *philo;
 
 	philo = (t_philo *)ptr;
-	philo->info->start = get_time();
+	pthread_mutex_lock(&philo->mxate);
 	philo->last_time_ate = get_time();
+	pthread_mutex_unlock(&philo->mxate);
 	if (philo->index % 2 == 0)
-		usleep(philo->info->time_to_die/10);
-	while (philo->info->die == 0)
+		usleep(philo->info->time_to_die/2);
+	while (philo->info->stop == 0)
 	{
-		take_forks(philo, 2);
-		if (philo->lfork == 1 && philo->rfork == 1)
-		{
-			pthread_mutex_lock(&philo->mxate);
-			philo->last_time_ate = get_time();
-			pthread_mutex_unlock(&philo->mxate);
-			mx_printf("is eating\n", philo);
-			ft_usleep(philo->info->time_to_eat);
-			mx_printf("is sleeping\n", philo);
-			ft_usleep(philo->info->time_to_sleep);
-		}
+		take_forks(philo);
+		pthread_mutex_lock(&philo->mxate);
+		philo->last_time_ate = get_time();
+		philo->meals_count++;
+		pthread_mutex_unlock(&philo->mxate);
+		mx_printf("is eating\n", philo);
+		ft_usleep(philo->info->time_to_eat);
+		mx_printf("is sleeping\n", philo);
+		pthread_mutex_unlock(&(philo->f_next->mxfork));
+		pthread_mutex_unlock(&(philo->f_prev->mxfork));
+		ft_usleep(philo->info->time_to_sleep);
 	}
 	return (NULL);
 }
 
+int meal_check(t_philo *philo)
+{
+	int i;
+
+	i = 0;
+	if (philo->info->num_of_meals == -1)
+		return (0);
+	while (philo->info->number_of_phil > i)
+	{
+		if (philo->meals_count < philo->info->num_of_meals)
+			return (0);
+		philo = philo->next;
+		i++;
+	}
+	return (1);
+}
 
 int	check_philos(t_philo *philos)
 {
 	int i;
 
 	i = philos->info->number_of_phil;
+	usleep(100);
 	while (i > 0)
 	{
-		if ((get_time() - philos->last_time_ate) >= philos->info->time_to_die)
+		if ((get_time() - philos->last_time_ate) > philos->info->time_to_die)
 		{
-			philos->info->die = 1;
+			philos->info->stop = 1;
 			mx_printf("has died\n", philos);
+			return (-1);
+		}
+		if (meal_check(philos))
+		{
+			philos->info->stop = 1;
 			return (-1);
 		}
 		i--;
@@ -131,7 +142,6 @@ int	init_threads(t_philo *philos)
 	while (i > 0)
 	{
 		pthread_create(&philos->th, NULL, routine, philos);
-		printf("Here\n");
 		i--;
 		philos = philos->next;
 	}

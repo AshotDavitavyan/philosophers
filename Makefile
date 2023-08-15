@@ -1,7 +1,7 @@
 NAME	=	philo
 
 CC		=	gcc
-CFLAGS	=	-Wall -Wextra -Werror -g #-fsanitize=thread
+CFLAGS	=	-Wall -Wextra -Werror -g -fsanitize=thread
 RM		=	rm -rf
 
 SRC_DIR	=	src/
@@ -9,7 +9,7 @@ OBJ_DIR =	obj/
 LIBFT_DIR = ./libft/
 
 SRCS	=	$(wildcard $(SRC_DIR)*.c)
-OBJS = $(patsubst $(SRC_DIR)%.c,$(OBJ_DIR)%.o,$(SRCS))
+OBJS 	=	$(patsubst $(SRC_DIR)%.c,$(OBJ_DIR)%.o,$(SRCS))
 
 all:	$(NAME)
 

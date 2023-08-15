@@ -69,12 +69,13 @@ void	add_info(t_info *start_info, char **argv)
 		else if (i == 3)
 			start_info->time_to_sleep = ft_atoi(*argv);
 		else if (i == 4)
-			start_info->num_to_eat = ft_atoi(*argv);
+			start_info->num_of_meals = ft_atoi(*argv);
 		argv++;
 		i++;
 	}
-	start_info->start = 0;
+	start_info->start = get_time();
+	start_info->stop = 0;
 	pthread_mutex_init(&start_info->mxprint, 0);
 	if (i == 4)
-		start_info->num_to_eat = -1;
+		start_info->num_of_meals = (-1);
 }

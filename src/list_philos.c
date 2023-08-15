@@ -7,13 +7,12 @@ t_philo	*add_philo(int index, t_info *info)
 	philo = (t_philo *)malloc(sizeof(t_philo));
 	philo->index = index;
 	philo->last_time_ate = 0;
+	philo->meals_count = 0;
 	philo->info = info;
 	philo->next = NULL;
 	philo->prev = NULL;
 	philo->f_prev = NULL;
 	philo->f_next = NULL;
-	philo->lfork = 0;
-	philo->rfork = 0;
 	pthread_mutex_init(&philo->mxate, 0);
 	return (philo);
 }
@@ -63,18 +62,20 @@ t_philo	*create_philos(t_info *start_info)
 void	add_forks(t_philo *philos)
 {
 	t_fork	*fork;
+	int		i;
 
+	i = 0;
 	while (philos->next->index > philos->index)
 	{
 		fork = (t_fork *)malloc(sizeof(t_fork));
-		fork->taken = 0;
 		pthread_mutex_init(&fork->mxfork, 0);
 		philos->f_next = fork;
 		philos->next->f_prev = fork;
 		philos = philos->next;
+		i++;
 	}
 	fork = (t_fork *)malloc(sizeof(t_fork));
-	fork->taken = 0;
+	pthread_mutex_init(&fork->mxfork, 0);
 	philos->f_next = fork;
 	philos->next->f_prev = fork;
 }
