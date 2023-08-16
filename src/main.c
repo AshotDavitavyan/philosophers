@@ -12,6 +12,7 @@
 
 ////////////////////////////////////////////DO GIT PUSH!!!!!!!!!!!!!!//////////////////////////////////////
 //mutex die
+//detach and join
 
 #include "../includes/philo.h"
 
@@ -43,26 +44,24 @@ void	ft_usleep(int ms)
 		usleep(ms / 10);
 }
 
-void	take_forks_util(t_philo *philo, int which)
-{
-	if (which == 1)
-	{
-		pthread_mutex_lock(&(philo->f_next->mxfork));
-		mx_printf("has taken a fork\n", philo);
-	}
-	else if (which == (-1))
-	{
-		pthread_mutex_lock(&(philo->f_prev->mxfork));
-		mx_printf("has taken a fork\n", philo);
-	}
-}
-
 void	take_forks(t_philo *philo)
 {
 	pthread_mutex_lock(&(philo->f_next->mxfork));
-	mx_printf("has taken a fork right\n", philo);
+	mx_printf("has taken a fork\n", philo);
 	pthread_mutex_lock(&(philo->f_prev->mxfork));
-	mx_printf("has taken a fork left\n", philo);
+	mx_printf("has taken a fork\n", philo);
+}
+
+void	eat(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->mxate);
+	philo->last_time_ate = get_time();
+	philo->meals_count++;
+	pthread_mutex_unlock(&philo->mxate);
+	mx_printf("is eating\n", philo);
+	ft_usleep(philo->info->time_to_eat);
+	mx_printf("is sleeping\n", philo);
+	ft_usleep(philo->info->time_to_sleep);
 }
 
 void	*routine(void *ptr)
@@ -75,20 +74,17 @@ void	*routine(void *ptr)
 	pthread_mutex_unlock(&philo->mxate);
 	if (philo->index % 2 == 0)
 		usleep(philo->info->time_to_die/2);
+	pthread_mutex_lock(&philo->info->mxstop);
 	while (philo->info->stop == 0)
 	{
+		pthread_mutex_unlock(&philo->info->mxstop);
 		take_forks(philo);
-		pthread_mutex_lock(&philo->mxate);
-		philo->last_time_ate = get_time();
-		philo->meals_count++;
-		pthread_mutex_unlock(&philo->mxate);
-		mx_printf("is eating\n", philo);
-		ft_usleep(philo->info->time_to_eat);
-		mx_printf("is sleeping\n", philo);
+		eat(philo);
 		pthread_mutex_unlock(&(philo->f_next->mxfork));
 		pthread_mutex_unlock(&(philo->f_prev->mxfork));
-		ft_usleep(philo->info->time_to_sleep);
+		pthread_mutex_lock(&philo->info->mxstop);
 	}
+	pthread_mutex_unlock(&philo->info->mxstop);
 	return (NULL);
 }
 
@@ -97,12 +93,22 @@ int meal_check(t_philo *philo)
 	int i;
 
 	i = 0;
+	pthread_mutex_lock(&philo->mxate);
 	if (philo->info->num_of_meals == -1)
+	{
+		pthread_mutex_unlock(&philo->mxate);
 		return (0);
+	}
+	pthread_mutex_unlock(&philo->mxate);
 	while (philo->info->number_of_phil > i)
 	{
+		pthread_mutex_lock(&philo->mxate);
 		if (philo->meals_count < philo->info->num_of_meals)
+		{
+			pthread_mutex_unlock(&philo->mxate);
 			return (0);
+		}
+		pthread_mutex_unlock(&philo->mxate);
 		philo = philo->next;
 		i++;
 	}
@@ -117,15 +123,22 @@ int	check_philos(t_philo *philos)
 	usleep(100);
 	while (i > 0)
 	{
+		pthread_mutex_lock(&philos->mxate);
 		if ((get_time() - philos->last_time_ate) > philos->info->time_to_die)
 		{
+			pthread_mutex_unlock(&philos->mxate);
+			pthread_mutex_lock(&philos->info->mxstop);
 			philos->info->stop = 1;
+			pthread_mutex_unlock(&philos->info->mxstop);
 			mx_printf("has died\n", philos);
 			return (-1);
 		}
+		pthread_mutex_unlock(&philos->mxate);
 		if (meal_check(philos))
 		{
+			pthread_mutex_lock(&philos->info->mxstop);
 			philos->info->stop = 1;
+			pthread_mutex_unlock(&philos->info->mxstop);
 			return (-1);
 		}
 		i--;
@@ -148,7 +161,7 @@ int	init_threads(t_philo *philos)
 	while (1)
 	{
 		if (check_philos(philos) == (-1))
-			return (-1);
+			break ;
 	}
 	while (i < philos->info->number_of_phil)
 	{
@@ -163,7 +176,9 @@ int	init_threads(t_philo *philos)
  {
  	t_info	*start_info;
  	t_philo	*philos;
+	int		i;
 
+	i = 0;
 	if (argc == 2 && ft_strnstr(argv[1], "order", 5) != NULL)
 	{
 		printf("<philosophers> <time to die> <time to eat>\
@@ -176,7 +191,6 @@ int	init_threads(t_philo *philos)
  	add_info(start_info, argv);
  	philos = create_philos(start_info);
  	add_forks(philos);
-	if(init_threads(philos) == -1)
-		return (1);
+	init_threads(philos);
 	return (0);
 }

@@ -76,6 +76,7 @@ void	add_info(t_info *start_info, char **argv)
 	start_info->start = get_time();
 	start_info->stop = 0;
 	pthread_mutex_init(&start_info->mxprint, 0);
+	pthread_mutex_init(&start_info->mxstop, 0);
 	if (i == 4)
 		start_info->num_of_meals = (-1);
 }

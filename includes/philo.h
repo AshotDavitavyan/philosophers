@@ -20,6 +20,7 @@ typedef struct s_info
 	int			stop;
 	long long	start;
 	t_mutex		mxprint;
+	t_mutex		mxstop;
 }				t_info;
 
 typedef	struct s_fork
