@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   list_philos.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: adavitav <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/08/17 18:57:02 by adavitav          #+#    #+#             */
+/*   Updated: 2023/08/17 18:57:03 by adavitav         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/philo.h"
 
 t_philo	*add_philo(int index, t_info *info)
@@ -6,6 +18,7 @@ t_philo	*add_philo(int index, t_info *info)
 
 	philo = (t_philo *)malloc(sizeof(t_philo));
 	philo->index = index;
+	philo->death = 0;
 	philo->last_time_ate = 0;
 	philo->meals_count = 0;
 	philo->info = info;
@@ -14,6 +27,7 @@ t_philo	*add_philo(int index, t_info *info)
 	philo->f_prev = NULL;
 	philo->f_next = NULL;
 	pthread_mutex_init(&philo->mxate, 0);
+	pthread_mutex_init(&philo->mxdeath, 0);
 	return (philo);
 }
 
@@ -73,7 +87,7 @@ void	add_forks(t_philo *philos)
 		philos->next->f_prev = fork;
 		philos = philos->next;
 		i++;
-	}
+	}	
 	fork = (t_fork *)malloc(sizeof(t_fork));
 	pthread_mutex_init(&fork->mxfork, 0);
 	philos->f_next = fork;
