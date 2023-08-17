@@ -74,17 +74,17 @@ void	*routine(void *ptr)
 	pthread_mutex_unlock(&philo->mxate);
 	if (philo->index % 2 == 0)
 		usleep(philo->info->time_to_die/2);
-	pthread_mutex_lock(&philo->info->mxstop);
+	// pthread_mutex_lock(&philo->info->mxstop);
 	while (philo->info->stop == 0)
 	{
-		pthread_mutex_unlock(&philo->info->mxstop);
+		// pthread_mutex_unlock(&philo->info->mxstop);
 		take_forks(philo);
 		eat(philo);
 		pthread_mutex_unlock(&(philo->f_next->mxfork));
 		pthread_mutex_unlock(&(philo->f_prev->mxfork));
-		pthread_mutex_lock(&philo->info->mxstop);
+		// pthread_mutex_lock(&philo->info->mxstop);
 	}
-	pthread_mutex_unlock(&philo->info->mxstop);
+	// pthread_mutex_unlock(&philo->info->mxstop);
 	return (NULL);
 }
 
@@ -93,22 +93,22 @@ int meal_check(t_philo *philo)
 	int i;
 
 	i = 0;
-	pthread_mutex_lock(&philo->mxate);
+	// pthread_mutex_lock(&philo->mxate);
 	if (philo->info->num_of_meals == -1)
 	{
-		pthread_mutex_unlock(&philo->mxate);
+		// pthread_mutex_unlock(&philo->mxate);
 		return (0);
 	}
-	pthread_mutex_unlock(&philo->mxate);
+	// pthread_mutex_unlock(&philo->mxate);
 	while (philo->info->number_of_phil > i)
 	{
-		pthread_mutex_lock(&philo->mxate);
+		// pthread_mutex_lock(&philo->mxate);
 		if (philo->meals_count < philo->info->num_of_meals)
 		{
-			pthread_mutex_unlock(&philo->mxate);
+			// pthread_mutex_unlock(&philo->mxate);
 			return (0);
 		}
-		pthread_mutex_unlock(&philo->mxate);
+		// pthread_mutex_unlock(&philo->mxate);
 		philo = philo->next;
 		i++;
 	}
@@ -123,22 +123,22 @@ int	check_philos(t_philo *philos)
 	usleep(100);
 	while (i > 0)
 	{
-		pthread_mutex_lock(&philos->mxate);
+		// pthread_mutex_lock(&philos->mxate);
 		if ((get_time() - philos->last_time_ate) > philos->info->time_to_die)
 		{
-			pthread_mutex_unlock(&philos->mxate);
-			pthread_mutex_lock(&philos->info->mxstop);
+			// pthread_mutex_unlock(&philos->mxate);
+			// pthread_mutex_lock(&philos->info->mxstop);
 			philos->info->stop = 1;
-			pthread_mutex_unlock(&philos->info->mxstop);
+			// pthread_mutex_unlock(&philos->info->mxstop);
 			mx_printf("has died\n", philos);
 			return (-1);
 		}
-		pthread_mutex_unlock(&philos->mxate);
+		// pthread_mutex_unlock(&philos->mxate);
 		if (meal_check(philos))
 		{
-			pthread_mutex_lock(&philos->info->mxstop);
+			// pthread_mutex_lock(&philos->info->mxstop);
 			philos->info->stop = 1;
-			pthread_mutex_unlock(&philos->info->mxstop);
+			// pthread_mutex_unlock(&philos->info->mxstop);
 			return (-1);
 		}
 		i--;
@@ -163,12 +163,12 @@ int	init_threads(t_philo *philos)
 		if (check_philos(philos) == (-1))
 			break ;
 	}
-	while (i < philos->info->number_of_phil)
-	{
-		i++;
-		pthread_join(philos->th, NULL);
-		philos = philos->next;
-	}
+	// while (i < philos->info->number_of_phil)
+	// {
+	// 	i++;
+	// 	pthread_join(philos->th, NULL);
+	// 	philos = philos->next;
+	// }
 	return (0);
 }
 
