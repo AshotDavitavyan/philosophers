@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parsing.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: adavitav <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/08/17 18:56:46 by adavitav          #+#    #+#             */
+/*   Updated: 2023/08/17 18:56:47 by adavitav         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/philo.h"
 
 int	isnum(char *arg)
@@ -9,7 +21,7 @@ int	isnum(char *arg)
 	}
 	if (*arg == '+')
 	{
-		while(*arg == '+')
+		while (*arg == '+')
 		arg++;
 	}
 	while (*arg)
@@ -54,7 +66,7 @@ int	check_args(int number_arg, char **args, char *save)
 
 void	add_info(t_info *start_info, char **argv)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	argv++;
@@ -76,6 +88,7 @@ void	add_info(t_info *start_info, char **argv)
 	start_info->start = get_time();
 	start_info->stop = 0;
 	pthread_mutex_init(&start_info->mxprint, 0);
+	pthread_mutex_init(&start_info->mxstop, 0);
 	if (i == 4)
 		start_info->num_of_meals = (-1);
 }
