@@ -17,7 +17,6 @@ int	main(int argc, char **argv)
 	t_info	*start_info;
 	t_philo	*philos;
 
-	i = 0;
 	if (argc == 2 && ft_strnstr(argv[1], "order", 5) != NULL)
 	{
 		printf("<philosophers> <time to die> <time to eat>\
@@ -31,5 +30,6 @@ int	main(int argc, char **argv)
 	philos = create_philos(start_info);
 	add_forks(philos);
 	init_threads(philos);
+	// system("leaks philo");
 	return (0);
 }

@@ -28,8 +28,8 @@ void	take_forks(t_philo *philo)
 void	eat(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->mxate);
-	philo->last_time_ate = get_time();
 	mx_printf("is eating\n", philo);
+	philo->last_time_ate = get_time();//one up
 	philo->meals_count++;
 	pthread_mutex_unlock(&philo->mxate);
 	ft_usleep(philo->info->time_to_eat);
