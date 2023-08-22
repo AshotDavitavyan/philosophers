@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parsing.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: adavitav <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/08/22 16:25:53 by adavitav          #+#    #+#             */
+/*   Updated: 2023/08/22 16:25:54 by adavitav         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../includes/philo_bonus.h"
 
@@ -75,7 +86,6 @@ void	add_info(t_info *start_info, char **argv)
 		i++;
 	}
 	start_info->start = get_time();
-	start_info->stop = 0;
 	if (i == 4)
 		start_info->num_of_meals = (-1);
 }

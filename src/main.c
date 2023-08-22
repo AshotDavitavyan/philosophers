@@ -17,12 +17,6 @@ int	main(int argc, char **argv)
 	t_info	*start_info;
 	t_philo	*philos;
 
-	if (argc == 2 && ft_strnstr(argv[1], "order", 5) != NULL)
-	{
-		printf("<philosophers> <time to die> <time to eat>\
-		<time to sleep> <times each philosopher must eat>\n");
-		return (0);
-	}
 	if (check_args(argc, argv, *argv) == 0)
 		return (1);
 	start_info = (t_info *)malloc(sizeof(t_info));
@@ -30,6 +24,5 @@ int	main(int argc, char **argv)
 	philos = create_philos(start_info);
 	add_forks(philos);
 	init_threads(philos);
-	// system("leaks philo");
 	return (0);
 }

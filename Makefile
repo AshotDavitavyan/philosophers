@@ -46,4 +46,7 @@ fclean:		clean
 re:			fclean all
 			make -C $(LIBFT_DIR) re
 
+reb:		fclean bonus
+			make -C $(LIBFT_DIR) re
+
 .PHONY:		all clean fclean re
