@@ -6,7 +6,7 @@
 /*   By: adavitav <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/22 16:25:53 by adavitav          #+#    #+#             */
-/*   Updated: 2023/08/22 16:25:54 by adavitav         ###   ########.fr       */
+/*   Updated: 2023/08/22 19:55:43 by adavitav         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,11 @@ int	isnum(char *arg)
 	{
 		while (*arg == '+')
 		arg++;
+	}
+	if (*arg == '0')
+	{
+		ft_putstr_fd("Argument should not be 0\n", 2);
+		return (0);
 	}
 	while (*arg)
 	{

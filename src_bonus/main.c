@@ -6,7 +6,7 @@
 /*   By: adavitav <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/22 16:25:41 by adavitav          #+#    #+#             */
-/*   Updated: 2023/08/22 16:25:41 by adavitav         ###   ########.fr       */
+/*   Updated: 2023/08/22 19:54:34 by adavitav         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,7 @@ int	main(int argc, char **argv)
 	t_philo	*philos;
 
 	if (check_args(argc, argv, *argv) == 0)
-	{
-		system("leaks philo");
 		return (1);
-	}
 	start_info = (t_info *)malloc(sizeof(t_info));
 	philos = NULL;
 	add_info(start_info, argv);
