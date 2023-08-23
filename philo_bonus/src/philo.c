@@ -31,11 +31,7 @@ void	launch_philos(t_philo *philos, t_info *info, int i)
 		philos[i].index = i + 1;
 		philos[i].info = info;
 		if (pid[i] == 0)
-		{
-			sem_unlink("eat");
-			philos[i].s_eat = sem_open("eat", O_CREAT, 0644, 1);
 			philo_life(&philos[i]);
-		}
 		i++;
 	}
 	waitpid(-1, &exit_status, 0);

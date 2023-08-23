@@ -41,7 +41,8 @@ typedef struct s_philo
 	int				death;
 	long long		last_time_ate;
 	t_info			*info;
-	sem_t			*s_eat;
+	sem_t			*s_eat_count;
+	sem_t			*s_eat_time;
 	pthread_t		checker;
 }	t_philo;
 
