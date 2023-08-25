@@ -14,16 +14,6 @@
 
 int	isnum(char *arg)
 {
-	if (*arg == '-')
-	{
-		ft_putstr_fd("Argument Should be Positive\n", 2);
-		return (0);
-	}
-	if (*arg == '+')
-	{
-		while (*arg == '+')
-		arg++;
-	}
 	if (*arg == '0')
 	{
 		ft_putstr_fd("Argument Should not be 0\n", 2);
